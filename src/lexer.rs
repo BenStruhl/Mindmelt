@@ -1,4 +1,4 @@
-use token::Token; 
+use crate::token::Token; 
 
 #[allow(dead_code)]
 pub struct Lexer<'a> {
@@ -28,15 +28,6 @@ impl<'a> Lexer<'a> {
         l.read_char();
         return l;
     }
-
-    fn read_number(&mut self) -> Token {
-        let position = self.position;
-        while (self.ch as char).is_ascii_digit() {
-            self.read_char();
-        }
-        self.read_position -= 1;
-        return Token::INT(self.input[position..self.position].parse::<i64>().unwrap());
-    }
     
     fn skip_whitespace(&mut self) {
         while (self.ch as char).is_ascii_whitespace() {
@@ -55,7 +46,6 @@ impl<'a> Lexer<'a> {
     pub fn next_token(&mut self) -> Token {
         self.skip_whitespace();
         let tok: Token= match self.ch as char {
-            '0' ... '9' => self.read_number(),
             '<'   => Token::LT,
             '>'   => Token::GT,
             '.'   => Token::DOT,
@@ -64,6 +54,7 @@ impl<'a> Lexer<'a> {
             '+'   => Token::PLUS,
             '['   => Token::LSBRACE,
             '%'   => Token::PERCENT,
+            '!'   => Token::BANG,
             ']'   => Token::RSBRACE,
             '\0'  => Token::EOF,
              _    => Token::ILLEGAL, 
@@ -80,13 +71,12 @@ impl<'a> Lexer<'a> {
 }
 #[cfg(test)]
 mod tests {
-    use token::Token; 
-    use lexer::Lexer;
+    use crate::token::Token; 
+    use crate::lexer::Lexer;
     #[test]
     fn test_next_token() {
-        let input = r#"30000++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.%,"#;
+        let input = r#"++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.%,!"#;
         let test_array = vec![
-                    Token::INT(30000),
                     Token::PLUS,
                     Token::PLUS,
                     Token::PLUS,
@@ -195,9 +185,13 @@ mod tests {
                     Token::DOT,
                     Token::PERCENT,
                     Token::COMMA,
+                    Token::BANG,
                ];
         let mut lexerr = Lexer::new(&input);
         for tt in test_array.iter() {
             let tok = lexerr.next_token();
             assert_eq!(tok, *tt);
+        }
+    }
+}
     

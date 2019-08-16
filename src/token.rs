@@ -1,11 +1,10 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Token {
     // special tokens that are used by the compiler not actual code
     ILLEGAL,
     EOF,
 
     // list of all applicable tokens
-    INT(i64), 
     PLUS,
     MINUS,
     BANG,
