@@ -1,7 +1,7 @@
 use crate::token::Token;
 use std::process;
 use std::io::stdin;
-
+#[derive(Debug)]
 pub struct Interpreter {
     pub program: Vec<u8>,
     pub index: usize,
@@ -94,7 +94,7 @@ impl Interpreter {
             match tokens[i] {
                 Token::LT => { self.index -= 1 },
                 Token::GT => { self.index += 1 },
-                Token::DOT => {  print!("{}", (self.program[self.index] as char))},
+                Token::DOT => {  print!("{:#?}", self.program)},
                 Token::MINUS => { self.program[self.index] -= 1 },
                 Token::COMMA => {
                         let mut s = String::new();
@@ -110,20 +110,20 @@ impl Interpreter {
                 Token::LSBRACE => {
                    if self.program[self.index] == 0 {
                        self.index = self.find_matching_brace(&tokens, true, self.index);
+                       println!("THIS IS MY NEW INDEX: {}", self.index);
                    } else {
+                       println!("HIHIHI");
+                       println!("{}", self.program[self.index]);
+                       i += 1;
                        continue;
                    }
                 },
                 Token::PERCENT => panic!("this feature is not implemented yet"),
                 Token::BANG => panic!("this feature is not implemented yet"),
                 Token::RSBRACE => {
-                   if self.program[self.index] == 0 {
                        self.index = self.find_matching_brace(&tokens, false, self.index);
-                   } else {
-                       continue;
-                   }
                 },
-                Token::EOF => return 0,
+                Token::EOF => return 1,
                 Token::ILLEGAL => panic!("Illegal Token"), 
     
             }
