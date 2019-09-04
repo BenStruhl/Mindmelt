@@ -14,6 +14,78 @@ impl Interpreter {
             index: 0,
         }
     }
+    pub fn find_matching_brace(&mut self, tokens: &Vec<Token>, isRightBrace: bool, index: usize) -> usize {
+        if isRightBrace {
+            let mut numberOfLeftBraces = Interpreter::count_lbraces(&tokens[0..index], true);
+            let mut indexCopy = index;
+            for (i, &item) in tokens[index..].iter().rev().enumerate() {
+                if item == Token::RSBRACE {
+                    numberOfLeftBraces -= 1;
+                } if numberOfLeftBraces == 0 {
+                    return i;
+                }
+            }
+            return index;
+        } else {
+            let mut numberOfRightBraces = Interpreter::count_rbraces(&tokens[index..], true);
+            let mut indexCopy = index;
+            for (i, &item) in tokens[index..].iter().enumerate() {
+                if item == Token::LSBRACE {
+                    numberOfRightBraces -= 1;
+                } if numberOfRightBraces == 0 {
+                    return i;
+                }
+            }
+            return index;
+        }
+    }
+    pub fn count_lbraces(tokens: &[Token], rev: bool) -> usize {
+        let mut x: usize = 0;
+        let iter = tokens.iter();
+        if rev {
+            for i in iter.rev() {
+                if(*i == Token::LSBRACE) {
+                    x += 1;
+                } else if (*i == Token::RSBRACE) {
+                    break;
+                } else {}
+            }
+        } else {
+            for i in iter {
+                if(*i == Token::LSBRACE) {
+                    x += 1;
+                } else if (*i == Token::RSBRACE) {
+                    break;
+                } else {}
+            }
+        }
+        return x;
+    }
+    pub fn count_rbraces(tokens: &[Token], rev: bool) -> usize {
+        let mut x: usize = 0;
+        let iter = tokens.iter();
+        if rev {
+            for i in iter.rev() {
+                if(*i == Token::RSBRACE) {
+                    x += 1;
+                } else if (*i == Token::LSBRACE) {
+                    break;
+                } else {}
+            }
+        } else {
+            for i in iter {
+                if(*i == Token::RSBRACE) {
+                    x += 1;
+                } else if (*i == Token::LSBRACE) {
+                    break;
+                } else {}
+            }
+        }
+        return x;
+    }
+    
+        
+    
     pub fn run_commands(&mut self, tokens: Vec<Token>) -> isize {
         let mut i = 0;
         while i < tokens.len() {
@@ -36,51 +108,20 @@ impl Interpreter {
                 } ,
                 Token::PLUS => { self.program[self.index] += 1 },
                 Token::LSBRACE => {
-                    if self.program[self.index] == 0 {
-                       let mut brace_count = 0;
-                       let mut y = i;
-                       while(y >= 0) {
-                           if(tokens[y] == Token::LSBRACE) {
-                               brace_count += 1;
-                           }
-                           y -= 1;
-                       }
-                         let mut x = tokens.len() - 1;
-                         while x >= 0 {
-                            if tokens[x] == Token::RSBRACE && brace_count == 1 {
-                                i = x + 1;
-                                println!("new i {}", i);
-                                break;
-                            }
-                            if tokens[x] == Token::RSBRACE {
-                                brace_count -= 1;
-                            }
-                            x -= 1; 
-                        }
-                    }
+                   if self.program[self.index] == 0 {
+                       self.index = self.find_matching_brace(&tokens, true, self.index);
+                   } else {
+                       continue;
+                   }
                 },
                 Token::PERCENT => panic!("this feature is not implemented yet"),
                 Token::BANG => panic!("this feature is not implemented yet"),
                 Token::RSBRACE => {
-                       let mut brace_count = 0;
-                       let mut y = i;
-                       while(y < tokens.len()) {
-                           if(tokens[y] == Token::RSBRACE) {
-                               brace_count += 1;
-                           }
-                           y += 1;
-                       }
-                       let mut x: usize = i;
-                        while x >= 0 { 
-                            if tokens[x] == Token::LSBRACE && brace_count == 1 {
-                                i = x;
-                                break;
-                            }
-                            if tokens[x] == Token::LSBRACE {
-                                brace_count -= 1;
-                            }
-                            x -= 1;
-                        }
+                   if self.program[self.index] == 0 {
+                       self.index = self.find_matching_brace(&tokens, false, self.index);
+                   } else {
+                       continue;
+                   }
                 },
                 Token::EOF => return 0,
                 Token::ILLEGAL => panic!("Illegal Token"), 
