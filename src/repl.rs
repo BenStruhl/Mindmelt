@@ -3,7 +3,6 @@ use crate::lexer::Lexer;
 use crate::interpreter::Interpreter;
 
 use std::io;
-use std::process;
 use std::io::prelude::*;
 
 
@@ -11,9 +10,9 @@ const PROMPT: &'static str = ">> ";
 
 
 pub fn start() {
-        let mut inter = Interpreter::new(5);
+        let mut inter = Interpreter::new(7);
         loop {
-            print!("{}", PROMPT);
+            print!("\n{}", PROMPT);
             io::stdout().flush().expect("REPLError: failed to flush stdin");
             let mut input = String::new();
             io::stdin().read_line(&mut input).expect("REPLError: failed to readline");
